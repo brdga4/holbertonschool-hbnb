@@ -10,7 +10,7 @@ sequenceDiagram
     Client->>API: POST /api/v1/reviews (user_id, place_id, rating, comment)
     activate API
 
-    API->>Facade: add_review(review_data)
+    API->>Facade: create(review_data)
     activate Facade
 
     Facade->>Repo: get_user(user_id)
@@ -23,7 +23,7 @@ sequenceDiagram
     Repo-->>Facade: Place found
     deactivate Repo
 
-    Note over Facade: Validate input data<br/>(e.g., rating between 1 and 5),<br/>and Create Review object
+    Note over Facade: Validate input data,<br/>and Create Review object
 
     Facade->>Repo: save(review)
     activate Repo
