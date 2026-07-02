@@ -6,165 +6,78 @@
 
 ### BaseModel
 
-**Role:**  
-Acts as the parent class for all main entities in the system. It provides common attributes shared by every entity.
+**Role:** Acts as the parent class for all main entities in the project. It provides a common ID and timestamps for every entity.
 
-**Key Attributes:**
-
-- **ID (UUID4):** Unique identifier for each object.
-- **created_at (DateTime):** Records when the object was created.
-- **updated_at (DateTime):** Records the last update time.
+**Key Attributes:** ID (UUID4), created_at, updated_at.
 
 ---
 
 ### User
 
-**Role:**  
-Represents a user of the HBnB application. A user can own places, write reviews, and may also be an administrator.
+**Role:** Represents a user in the HBnB project. A user can own places, write reviews, and may also be an administrator.
 
-**Key Attributes:**
+**Key Attributes:** first_name, last_name, email, password, is_admin, role (UserRole).
 
-- first_name
-- last_name
-- email
-- password
-- is_admin
-- role (UserRole)
-
-**Key Methods:**
-
-- register()
-- update_profile()
-- delete()
+**Key Methods:** register(), update_profile(), delete().
 
 ---
 
 ### Place
 
-**Role:**  
-Represents a property listed by a user. It stores the information required to describe the property.
+**Role:** Represents a property listed by a user.
 
-**Key Attributes:**
+**Key Attributes:** title, description, price, latitude, longitude.
 
-- title
-- description
-- price
-- latitude
-- longitude
-
-**Key Methods:**
-
-- create()
-- update()
-- delete()
+**Key Methods:** create(), update(), delete().
 
 ---
 
 ### Review
 
-**Role:**  
-Represents a user's review for a specific place.
+**Role:** Represents a user's review for a place.
 
-**Key Attributes:**
+**Key Attributes:** rating (RatingValue), comment.
 
-- rating (RatingValue)
-- comment
-
-**Key Methods:**
-
-- create()
-- update()
-- delete()
-- list_by_place()
+**Key Methods:** create(), update(), delete(), list_by_place().
 
 ---
 
 ### Amenity
 
-**Role:**  
-Represents a feature available in a place, such as Wi-Fi or a swimming pool.
+**Role:** Represents a feature available in a place, such as Wi-Fi or a swimming pool.
 
-**Key Attributes:**
+**Key Attributes:** name, description.
 
-- name
-- description
-
-**Key Methods:**
-
-- create()
-- update()
-- delete()
+**Key Methods:** create(), update(), delete().
 
 ---
 
 ### Enumerations
 
-#### UserRole
+**UserRole:** Defines the available user roles (OWNER, CLIENT, BOTH).
 
-Defines the available roles for users:
-
-- OWNER
-- CLIENT
-- BOTH
-
-#### RatingValue
-
-Limits review ratings to values from **1** to **5**.
+**RatingValue:** Limits review ratings to values from 1 to 5.
 
 ---
 
-# 2. Entity Relationships & Business Logic
+## 2. Entity Relationships & Business Logic
 
-## Inheritance
+### Inheritance
 
-`User`, `Place`, `Review`, and `Amenity` inherit from `BaseModel`.
+User, Place, Review, and Amenity inherit from BaseModel, allowing them to share the same ID and timestamps.
 
-This allows all entities to share the same ID, creation date, and update date without duplicating these attributes.
+### User & Place (One-to-Many)
 
----
+A user can own multiple places, while each place belongs to one user.
 
-## User and Place (One-to-Many)
+### Place & Amenity (Many-to-Many)
 
-A user can own multiple places.
+A place can have multiple amenities, and an amenity can belong to multiple places.
 
-```text
-User "1" --> "*" Place
-```
+### Review, User & Place
 
-Each place belongs to one owner.
+Each review is written by one user and belongs to one place. This relationship allows the project to retrieve reviews for a specific place or by a specific user.
 
----
+### Enumerations
 
-## Place and Amenity (Many-to-Many)
-
-A place can have multiple amenities, and an amenity can be associated with multiple places.
-
-```text
-Place "*" --> "*" Amenity
-```
-
-This avoids creating duplicate amenities for different places.
-
----
-
-## Review, User, and Place
-
-Each review is linked to:
-
-- One user (the author).
-- One place.
-
-```text
-Review "*" --> "1" User
-Review "*" --> "1" Place
-```
-
-This relationship allows the system to retrieve all reviews for a place or all reviews written by a specific user.
-
----
-
-## Enumerations
-
-The `User` entity uses the `UserRole` enumeration, while the `Review` entity uses the `RatingValue` enumeration.
-
-Using enumerations helps ensure that only valid values are accepted for user roles and review ratings. `User` and `Review` entities rely strictly on `UserRole` and `RatingValue` respectively (`--> : uses`). This prevents invalid data entries at the application logic level before interacting with the database layer.
+The User entity uses the UserRole enumeration, while the Review entity uses the RatingValue enumeration to ensure only valid values are accepted.
