@@ -12,8 +12,10 @@ direction LR
     }
 
     class Review {
-        +RatingValue rating
+        +Int rating
         +String comment
+        +UUID4 user_id
+        +UUID4 place_id
         +list_by_place()
         +create()
         +update()
@@ -53,6 +55,7 @@ direction LR
         +Float price
         +Float latitude
         +Float longitude
+        +UUID4 owner_id
         +create()
         +update()
         +delete()
@@ -68,11 +71,11 @@ direction LR
 
     User --|> BaseModel : inherits
     User --> UserRole : uses
-    User "1" --> "" Place : owns
+    User "1" --> "*" Place : owns
     Place --|> BaseModel : inherits
-    Place "" --> "" Amenity : has
+    Place "*" --> "*" Amenity : has
     Review --|> BaseModel : inherits
-    Review "" --> "1" User : written_by
+    Review "*" --> "1" User : written_by
     Review "*" --> "1" Place : reviews
     Review --> RatingValue : uses
     Amenity --|> BaseModel : inherits
