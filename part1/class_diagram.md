@@ -1,3 +1,4 @@
+```mermaid
 ---
 config:
   layout: elk
@@ -79,3 +80,5 @@ direction LR
     Review "*" --> "1" Place : reviews
     Review --> RatingValue : uses
     Amenity --|> BaseModel : inherits
+```
+```
