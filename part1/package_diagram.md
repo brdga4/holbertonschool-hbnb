@@ -4,15 +4,15 @@
 
 ### 1. Layers and Their Responsibilities
 
-*   **Presentation Layer (The Front Door):**
+*   **Presentation Layer:**
     *   **Role:** This layer contains the `API`.
     *   **Responsibility:** It handles the communication with the outside world. It receives requests from the user (like asking to register an account or search for a place) and sends back the results. It does not do any heavy thinking; it just passes the requests to the next layer.
 
-*   **Business Logic Layer (The Brain):**
-    *   **Role:** This is where the core rules of our application live.
+*   **Business Logic Layer:**
+    *   **Role:** This layer contains the `Core Entities`.
     *   **Responsibility:** It contains all the main entities (`User`, `Place`, `Review`, `Amenity`) and the `HBnBFacade`. It processes the data, applies the rules (like checking if a rating is between 1 and 5), and prepares objects to be saved.
 
-*   **Persistence Layer (The Storage):**
+*   **Persistence Layer:**
     *   **Role:** This layer is responsible for saving and retrieving data.
     *   **Responsibility:** It uses a `RepositoryInterface` to define how data should be saved. Because we use an interface, our system can easily switch between saving data temporarily in memory (`InMemoryRepository`) for testing, or permanently in a database (`SQLRepository`) for the final product.
 
