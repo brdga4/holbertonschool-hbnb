@@ -41,6 +41,9 @@ The following sequence diagrams trace the step-by-step lifecycle of requests mov
 ### User Registration:
 
 This flow details how a user creates a new account, including email validation, and role assignment via the system facade.
+The client initiates the process by sending new profile data to the API presentation endpoints.
+The business facade checks the repository to verify that the provided email address is unique and available.
+Once validated, the facade hashes the password, creates the domain object, and commits the records to database storage.
 
 ```mermaid
 sequenceDiagram
@@ -81,6 +84,9 @@ sequenceDiagram
 ### Flow 2: Place Creation
 
 This flow shows how property parameters are processed and validated against existing users before a listing is saved.
+The client submits new property listing fields alongside a specific owner identifier to the presentation layer.
+The business facade queries the repository to ensure that the referenced owner exists and is authorized to create a listing.
+After passing attribute validations, the system instantiates the property object and stores it in the database.
 
 ```mermaid
 sequenceDiagram
@@ -121,6 +127,9 @@ sequenceDiagram
 ### Flow 3: Review Submission
 
 This flow illustrates the verification process checking that both the author and the target property exist before creating a link between them.
+The client sends feedback data consisting of a comment text, numerical score, user ID, and target property ID.
+The business facade acts as a guard by checking the database to guarantee both the author and the place are valid.
+When both references are verified, the review object is created, linked to both entities, and saved.
 
 ```mermaid
 sequenceDiagram
@@ -166,6 +175,9 @@ sequenceDiagram
 ### Flow 4: Fetching a List of Places
 
 This flow shows data retrieval, showing how raw database contents are gathered and packaged.
+The client makes an HTTP request to browse listings using optional parameters like maximum price or city filters.
+The presentation layer forwards these arguments to the facade, which routes the specific query parameters to the repository.
+The repository returns the matching domain models, which the facade cleans and serializes into an array format for the client.
 
 ```mermaid
 sequenceDiagram
