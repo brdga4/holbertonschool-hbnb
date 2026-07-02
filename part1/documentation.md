@@ -10,10 +10,7 @@ This document provides the technical blueprint for the HBnB project. It shows th
 
 The HBnB project follows a three-layer architecture to isolate responsibilities and decouple user interactions from database operations. A Facade pattern acts as the single point of entry into the business logic layer, simplifying how the presentation layer interacts with internal domain components.
 
-```
 <img width="568" height="1015" alt="image" src="https://github.com/user-attachments/assets/86da7fec-3cad-4b02-9cb7-eea736cea749" />
-
-```
 
 ### Explanatory Notes
 
@@ -27,10 +24,7 @@ The HBnB project follows a three-layer architecture to isolate responsibilities 
 
 The class diagram below shows the core entities of the application, their fields, behaviors, and relationships. It uses inheritance from a central `BaseModel` for shared tracking attributes, and handles roles and ratings strictly through enumerations.
 
-```
 <img width="1777" height="872" alt="image" src="https://github.com/user-attachments/assets/703f4197-bf16-4799-b74d-867adc69175a" />
-
-```
 
 ### Explanatory Notes
 
