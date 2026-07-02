@@ -10,7 +10,7 @@ sequenceDiagram
     Client->>API: GET /api/v1/places?max_price=150&city=Paris
     activate API
 
-    API->>Facade: get_all_places(filters)
+    API->>Facade: filter(filters)
     activate Facade
 
     Facade->>Repo: query_places(filters)
