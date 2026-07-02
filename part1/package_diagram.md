@@ -1,4 +1,5 @@
 <img width="568" height="1015" alt="image" src="https://github.com/user-attachments/assets/86ba75a2-4d96-4dfc-a15e-a6e25c7011d5" />
+
 ## Explanatory Notes
 
 ### 1. Layers and Their Responsibilities
