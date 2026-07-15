@@ -19,26 +19,57 @@ class RatingValue(Enum):
 class Review(BaseModel):
     """
     Review class that represents a review for a place.
+    Uses properties to ensure validation rules are permanently enforced.
     """
 
-    def __init__(self, text, rating, place, user):
-        super().__init__()
+    def __init__(self, text: str, rating, place: Place, user: User, **kwargs):
+        super().__init__(**kwargs)
 
-        if not isinstance(text, str) or not text.strip():
+        self.text = text
+        self.rating = rating
+        self.place = place
+        self.user = user
+
+    @property
+    def text(self) -> str:
+        return self._text
+
+    @text.setter
+    def text(self, value: str):
+        if not isinstance(value, str) or not value.strip():
             raise ValueError("Review text must be a non-empty string.")
-        self.text = text.strip()
+        self._text = value.strip()
 
-        if isinstance(rating, RatingValue):
-            self.rating = rating
+    @property
+    def rating(self) -> RatingValue:
+        return self._rating
+
+    @rating.setter
+    def rating(self, value):
+        if isinstance(value, RatingValue):
+            self._rating = value
         else:
             try:
-                self.rating = RatingValue(int(rating))
+                self._rating = RatingValue(int(value))
             except (ValueError, TypeError):
                 raise ValueError("Rating must be an integer between 1 and 5")
 
-        if not isinstance(place, Place):
-            raise ValueError("Place must be an instance of the Place class.")
-        self.place = place
+    @property
+    def place(self) -> Place:
+        return self._place
 
-        if not isinstance(user, User):
+    @place.setter
+    def place(self, value: Place):
+        if not isinstance(value, Place):
+            raise ValueError("Place must be an instance of the Place class.")
+        self._place = value
+
+    @property
+    def user(self) -> User:
+        return self._user
+
+    @user.setter
+    def user(self, value: User):
+        if not isinstance(value, User):
             raise ValueError("User must be an instance of the User class.")
+        self._user = value
