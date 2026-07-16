@@ -1,11 +1,10 @@
-from baseModel import BaseModel
-from user import User
-from amenity import Amenity
-from review import Review
+from app.models.baseModel import BaseModel
+from app.models.user import User
+from app.models.amenity import Amenity
+from app.models.review import Review
 
 
 class Place(BaseModel):
-
     def __init__(self, title, description, price, latitude, longitude, owner):
         super().__init__()
         self.title = title
@@ -73,8 +72,7 @@ class Place(BaseModel):
 
     @longitude.setter
     def longitude(self, value: float):
-        if not isinstance(value, (float, int)) or (value < -180 or value
-                                                   > 180):
+        if not isinstance(value, (float, int)) or (value < -180 or value > 180):
             raise ValueError("longitude most be between -180 and 180")
         self._longitude = value
 
