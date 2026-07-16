@@ -14,7 +14,13 @@ class HBnBFacade:
 
     # User methods
     def create_user(self, user_data):
-        """Create a new user and store it."""
+        email = user_data.get('email')
+        if email:
+            existing_user = self.get_user_by_email(email)
+            if existing_user:
+                raise ValueError("Email already registered")
+
+        from app.models.user import User
         user = User(**user_data)
         self.user_repo.add(user)
         return user
@@ -23,7 +29,10 @@ class HBnBFacade:
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
-        return self.user_repo.get_by_attribute("email", email)
+        for user in self.user_repo.get_all():
+            if user.email == email:
+                return user
+        return None
 
     def get_all_users(self):
         return self.user_repo.get_all()
