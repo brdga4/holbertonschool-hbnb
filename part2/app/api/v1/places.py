@@ -77,9 +77,14 @@ class PlaceResource(Resource):
     @api.response(404, "Place not found")
     def get(self, place_id):
         """Get place details by ID"""
-        try:
-            place = facade.get_place(place_id)
-            place_dict = place.to_dict()
+        place = facade.get_place(place_id)
+
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        place_dict = place.to_dict()
+
+        if place.owner:
             owner = place.owner
             place_dict["owner"] = {
                 "first_name": owner.first_name,
@@ -87,22 +92,26 @@ class PlaceResource(Resource):
                 "email": owner.email,
                 "id": owner.id,
             }
-            place_dict["amenities"] = [amenity.to_dict() for amenity in place.amenities]
-            return place_dict, 200
-        except ValueError:
-            return {"error": "Place not found"}, 404
+
+        place_dict["amenities"] = [amenity.to_dict() for amenity in place.amenities]
+        return place_dict, 200
 
     @api.expect(place_model)
     @api.response(200, "Place updated successfully")
     @api.response(404, "Place not found")
     @api.response(400, "Invalid input data")
     def put(self, place_id):
+        """Update a place's information"""
+        place_data = api.payload
         try:
-            place = api.payload
-            facade.update_place(place_id, place)
-            return {"message": "Place updated successfully"}, 200
-        except ValueError:
-            return {"error": "Place not found"}, 404
+            updated_place = facade.update_place(place_id, place_data)
+
+            if not updated_place:
+                return {"error": "Place not found"}, 404
+
+            return updated_place.to_dict(), 200
+        except ValueError as e:
+            return {"error": str(e)}, 400
 
 
 @api.route("/<place_id>/reviews")
