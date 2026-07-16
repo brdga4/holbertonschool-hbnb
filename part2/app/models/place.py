@@ -1,7 +1,6 @@
 from app.models.baseModel import BaseModel
 from app.models.user import User
 from app.models.amenity import Amenity
-from app.models.review import Review
 
 
 class Place(BaseModel):
@@ -77,6 +76,8 @@ class Place(BaseModel):
         self._longitude = value
 
     def add_review(self, review):
+        from app.models.review import Review
+
         """Add a review to the place."""
         if not isinstance(review, Review):
             raise TypeError("review must be an instance of Review")
