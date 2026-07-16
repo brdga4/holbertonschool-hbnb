@@ -1,5 +1,7 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.amenity import Amenity
+from app.models.user import User
+from app.models.review import Review
 
 
 class HBnBFacade:
@@ -9,20 +11,98 @@ class HBnBFacade:
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
 
-    # Placeholder method for creating a user
+    # User methods
     def create_user(self, user_data):
-        # Logic will be implemented in later tasks
-        pass
+        """Create a new user and store it."""
+        user = User(**user_data)
+        self.user_repo.add(user)
+        return user
+
+    def get_user(self, user_id):
+        return self.user_repo.get(user_id)
+
+    def get_user_by_email(self, email):
+        return self.user_repo.get_by_attribute("email", email)
+
+    def get_all_users(self):
+        return self.user_repo.get_all()
+
+    def update_user(self, user_id, user_data):
+        user = self.get_user(user_id)
+        if not user:
+            return None
+        self.user_repo.update(user_id, user_data)
+        return user
+
+    # Review methods
+    def create_review(self, review_data):
+        # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
+        user_id = review_data.get("user_id")
+        place_id = review_data.get("place_id")
+
+        user = self.get_user(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        place = self.get_place(place_id)
+        if not place:
+            raise ValueError("Place not found")
+
+        review = Review(
+            text=review_data.get("text"),
+            rating=review_data.get("rating"),
+            place=place,
+            user=user,
+        )
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        # Placeholder for logic to retrieve a review by ID
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        # Placeholder for logic to retrieve all reviews
+        return self.review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        # Placeholder for logic to retrieve all reviews for a specific place
+        all_reviews = self.get_all_reviews()
+
+        matching_reviews = []
+
+        for review in all_reviews:
+            if review.place.id == place_id:
+                matching_reviews.append(review)
+
+        return matching_reviews
+
+    def update_review(self, review_id, review_data):
+        # Placeholder for logic to update a review
+        review = self.get_review(review_id)
+
+        if not review:
+            return None
+
+        self.review_repo.update(review_id, review_data)
+        return review
+
+    def delete_review(self, review_id):
+        # Placeholder for logic to delete a review
+        review = self.get_review(review_id)
+
+        if not review:
+            return False
+
+        self.review_repo.delete(review_id)
+        return True
 
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
         # Logic will be implemented in later tasks
         pass
 
-    # ==========================================
-    # Your Amenity Methods (Added safely below)
-    # ==========================================
-
+    # Amenity Methods
     def create_amenity(self, amenity_data):
         """Create a new amenity and store it."""
         amenity = Amenity(**amenity_data)
@@ -43,8 +123,8 @@ class HBnBFacade:
         if not amenity:
             return None
 
-        if 'name' in amenity_data:
-            amenity.name = amenity_data['name']
+        if "name" in amenity_data:
+            amenity.name = amenity_data["name"]
 
         self.amenity_repo.update(amenity_id, amenity)
         return amenity
