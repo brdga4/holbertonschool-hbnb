@@ -98,6 +98,7 @@ class HBnBFacade:
         self.review_repo.delete(review_id)
         return True
 
+    # Place methods
     def create_place(self, place_data: dict):
         owner_id = place_data.pop("owner_id", None)
         if owner_id:
@@ -109,17 +110,15 @@ class HBnBFacade:
         raise ValueError("Owner is not found or owner_id is missing")
 
     def get_place(self, place_id: str):
-        if place_id:
-            place = self.place_repo.get(place_id)
-            if place:
-                return place
-        raise ValueError("there is no plase with this id")
+        return self.place_repo.get(place_id)
 
     def get_all_places(self):
         return self.place_repo.get_all()
 
     def update_place(self, place_id, place_data):
         place = self.get_place(place_id)
+        if not place:
+            return None
         self.place_repo.update(place_id, place_data)
         return place
 
@@ -147,5 +146,5 @@ class HBnBFacade:
         if "name" in amenity_data:
             amenity.name = amenity_data["name"]
 
-        self.amenity_repo.update(amenity_id, amenity)
+        self.amenity_repo.update(amenity_id, amenity_data)
         return amenity
