@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 api = Namespace("places", description="Place operations")
 
@@ -63,6 +63,9 @@ class PlaceList(Resource):
         """Register a new place"""
         place = api.payload
         try:
+            if get_jwt_identity() != place["owner_id"]:
+                return {"error": "Unauthorized action."}, 403
+
             new_place = facade.create_place(place)
             return new_place.to_dict(), 201
         except ValueError as e:
@@ -109,9 +112,14 @@ class PlaceResource(Resource):
         """Update a place's information"""
         place_data = api.payload
         current_user_id = get_jwt_identity()
+        is_admin = get_jwt().get("is_admin", False)
 
-        if current_user_id != place_id:
-            return {"error: Unauthorized action."}, 403
+        place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        if current_user_id != place.owner.id and not is_admin:
+            return {"error": "Unauthorized action."}, 403
 
         try:
             updated_place = facade.update_place(place_id, place_data)
@@ -122,6 +130,27 @@ class PlaceResource(Resource):
             return updated_place.to_dict(), 200
         except ValueError as e:
             return {"error": str(e)}, 400
+
+    @api.response(200, "Place deleted successfully")
+    @api.response(403, "Unauthorized action")
+    @api.response(404, "Place not found")
+    @jwt_required()
+    def delete(self, place_id):
+        """Delete a place"""
+        place = facade.get_place(place_id)
+        is_admin = get_jwt().get("is_admin", False)
+
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        if place.owner.id != get_jwt_identity() and not is_admin:
+            return {"error": "Unauthorized action."}, 403
+
+        success = facade.delete_place(place_id)
+        if not success:
+            return {"error": "Place not found"}, 404
+
+        return {"message": "Place deleted successfully"}, 200
 
 
 @api.route("/<place_id>/reviews")

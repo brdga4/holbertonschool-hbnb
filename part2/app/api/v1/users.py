@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services import facade
+from app.utils.admin_required import admin_required
 
 api = Namespace("users", description="User operations")
 
@@ -12,7 +13,8 @@ user_model = api.model(
         ),
         "last_name": fields.String(required=True, description="Last name of the user"),
         "email": fields.String(required=True, description="Email of the user"),
-        "password": fields.String(required=True, description="Password of the user")
+        "password": fields.String(required=True, description="Password of the user"),
+        "is_admin": fields.Boolean(required=False, description="Admin or not")
     },
 )
 
@@ -34,6 +36,7 @@ class UserList(Resource):
     @api.expect(user_model, validate=True)
     @api.response(201, "User successfully created")
     @api.response(400, "Email already registered or invalid input data")
+    @admin_required()
     def post(self):
         """Register a new user"""
         user_data = api.payload
@@ -97,10 +100,11 @@ class UserResource(Resource):
         """Update a user's information"""
         user_data = api.payload
         current_user_id = get_jwt_identity()
+        is_admin = get_jwt().get("is_admin", False)
 
-        if user_id != current_user_id:
+        if user_id != current_user_id and not is_admin:
             return {"error": "Unauthorized action."}, 403
-        if "email" in user_data or "password" in user_data:
+        if ("email" in user_data or "password" in user_data) and not is_admin:
             return {"error": "You cannot modify email or password."}, 400
 
         try:
