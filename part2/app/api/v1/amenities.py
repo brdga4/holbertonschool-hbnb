@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from app.utils.admin_required import admin_required
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -26,6 +27,7 @@ class AmenityList(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @admin_required()
     def post(self):
         amenity_data = api.payload
         try:
@@ -53,6 +55,7 @@ class AmenityResource(Resource):
     @api.expect(amenity_model)
     @api.response(200, 'Amenity successfully updated')
     @api.response(400, 'Invalid input data')
+    @admin_required()
     def put(self, amenity_id):
         amenity_data = api.payload
         try:
