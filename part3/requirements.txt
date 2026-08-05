@@ -1,6 +1,7 @@
 Flask
 Flask-Bcrypt
 Flask-JWT-Extended
-Flask-SQLAlchemy
+flask-sqlalchemy
+sqlalchemy
 PyMySQL
 gunicorn
