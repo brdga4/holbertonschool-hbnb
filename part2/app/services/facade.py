@@ -130,6 +130,13 @@ class HBnBFacade:
         self.place_repo.update(place_id, place_data)
         return place
 
+    def delete_place(self, place_id):
+        place = self.get_place(place_id)
+        if not place:
+            return False
+        self.place_repo.delete(place_id)
+        return True
+
     # Amenity Methods
     def create_amenity(self, amenity_data):
         """Create a new amenity and store it."""

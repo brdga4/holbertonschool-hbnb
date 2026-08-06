@@ -1,5 +1,6 @@
 import re
 from app.models.baseModel import BaseModel
+from app import bcrypt
 
 
 class User(BaseModel):
@@ -13,6 +14,7 @@ class User(BaseModel):
         first_name: str,
         last_name: str,
         email: str,
+        password: str,
         is_admin: bool = False,
         **kwargs,
     ):
@@ -22,6 +24,7 @@ class User(BaseModel):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
+        self.password = password
 
     @property
     def first_name(self) -> str:
@@ -30,7 +33,8 @@ class User(BaseModel):
     @first_name.setter
     def first_name(self, value: str):
         if not value or not isinstance(value, str) or not value.strip():
-            raise ValueError("First name is required and must be a non-empty string.")
+            raise ValueError(
+                "First name is required and must be a non-empty string.")
         if len(value) > 50:
             raise ValueError("First name cannot exceed 50 characters.")
         self._first_name = value.strip()
@@ -42,7 +46,8 @@ class User(BaseModel):
     @last_name.setter
     def last_name(self, value: str):
         if not value or not isinstance(value, str) or not value.strip():
-            raise ValueError("Last name is required and must be a non-empty string.")
+            raise ValueError(
+                "Last name is required and must be a non-empty string.")
         if len(value) > 50:
             raise ValueError("Last name cannot exceed 50 characters.")
         self._last_name = value.strip()
@@ -61,3 +66,22 @@ class User(BaseModel):
             raise ValueError("Invalid email format.")
 
         self._email = value.strip()
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value: str):
+        if not value or not isinstance(value, str) or not value.strip():
+            raise ValueError("Password is required and must be a non-empty string.")
+        if value.startswith("$2b$"):
+            self._password = value
+        else:
+            self._password = bcrypt.generate_password_hash(value).decode("utf-8")
+
+    def hash_password(self, password):
+        self.password = password
+
+    def verify_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
