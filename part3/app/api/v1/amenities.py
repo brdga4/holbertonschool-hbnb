@@ -8,9 +8,13 @@ amenity_model = api.model(
     "Amenity",
     {
         "id": fields.String(
-            readOnly=True, description="The unique identifier of the amenity"
+            readOnly=True,
+            description="The unique identifier of the amenity",
         ),
-        "name": fields.String(required=True, description="Name of the amenity"),
+        "name": fields.String(
+            required=True,
+            description="Name of the amenity",
+        ),
     },
 )
 
@@ -31,7 +35,10 @@ class AmenityList(Resource):
         amenity_data = api.payload
         try:
             new_amenity = facade.create_amenity(amenity_data)
-            return {"id": new_amenity.id, "name": new_amenity.name}, 201
+            return {
+                "id": new_amenity.id,
+                "name": new_amenity.name,
+            }, 201
         except ValueError as e:
             api.abort(400, str(e))
 
@@ -55,9 +62,14 @@ class AmenityResource(Resource):
     def put(self, amenity_id):
         amenity_data = api.payload
         try:
-            updated_amenity = facade.update_amenity(amenity_id, amenity_data)
+            updated_amenity = facade.update_amenity(
+                amenity_id, amenity_data
+            )
             if not updated_amenity:
                 api.abort(404, "Amenity not found")
-            return {"id": updated_amenity.id, "name": updated_amenity.name}, 200
+            return {
+                "id": updated_amenity.id,
+                "name": updated_amenity.name,
+            }, 200
         except ValueError as e:
             api.abort(400, str(e))

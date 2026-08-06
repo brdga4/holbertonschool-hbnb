@@ -1,6 +1,10 @@
+from flask_jwt_extended import (
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 api = Namespace("places", description="Place operations")
 
@@ -16,8 +20,12 @@ user_model = api.model(
     "PlaceUser",
     {
         "id": fields.String(description="User ID"),
-        "first_name": fields.String(description="First name of the owner"),
-        "last_name": fields.String(description="Last name of the owner"),
+        "first_name": fields.String(
+            description="First name of the owner"
+        ),
+        "last_name": fields.String(
+            description="Last name of the owner"
+        ),
         "email": fields.String(description="Email of the owner"),
     },
 )
@@ -27,7 +35,9 @@ review_model = api.model(
     {
         "id": fields.String(description="Review ID"),
         "text": fields.String(description="Text of the review"),
-        "rating": fields.Integer(description="Rating of the place (1-5)"),
+        "rating": fields.Integer(
+            description="Rating of the place (1-5)"
+        ),
         "user_id": fields.String(description="ID of the user"),
     },
 )
@@ -35,17 +45,32 @@ review_model = api.model(
 place_model = api.model(
     "Place",
     {
-        "title": fields.String(required=True, description="Title of the place"),
-        "description": fields.String(description="Description of the place"),
-        "price": fields.Float(required=True, description="Price per night"),
-        "latitude": fields.Float(required=True, description="Latitude of the place"),
-        "longitude": fields.Float(required=True, description="Longitude of the place"),
-        "owner_id": fields.String(required=True, description="ID of the owner"),
+        "title": fields.String(
+            required=True, description="Title of the place"
+        ),
+        "description": fields.String(
+            description="Description of the place"
+        ),
+        "price": fields.Float(
+            required=True, description="Price per night"
+        ),
+        "latitude": fields.Float(
+            required=True, description="Latitude of the place"
+        ),
+        "longitude": fields.Float(
+            required=True, description="Longitude of the place"
+        ),
+        "owner_id": fields.String(
+            required=True, description="ID of the owner"
+        ),
         "amenities": fields.List(
-            fields.String, required=True, description="List of amenities ID's"
+            fields.String,
+            required=True,
+            description="List of amenities IDs",
         ),
         "reviews": fields.List(
-            fields.Nested(review_model), description="List of reviews"
+            fields.Nested(review_model),
+            description="List of reviews",
         ),
     },
 )
@@ -53,10 +78,18 @@ place_model = api.model(
 place_update_model = api.model(
     "PlaceUpdate",
     {
-        "title": fields.String(required=False, description="Title of the place"),
-        "price": fields.Float(required=False, description="Price per night"),
-        "latitude": fields.Float(required=False, description="Latitude of the place"),
-        "longitude": fields.Float(required=False, description="Longitude of the place"),
+        "title": fields.String(
+            required=False, description="Title of the place"
+        ),
+        "price": fields.Float(
+            required=False, description="Price per night"
+        ),
+        "latitude": fields.Float(
+            required=False, description="Latitude of the place"
+        ),
+        "longitude": fields.Float(
+            required=False, description="Longitude of the place"
+        ),
         "amenities": fields.List(fields.String, required=False),
     },
 )
@@ -72,7 +105,7 @@ class PlaceList(Resource):
         """Register a new place"""
         place = api.payload
         try:
-            if get_jwt_identity() != place["owner_id"]:
+            if get_jwt_identity() != place.get("owner_id"):
                 return {"error": "Unauthorized action."}, 403
 
             new_place = facade.create_place(place)
@@ -82,7 +115,9 @@ class PlaceList(Resource):
 
     @api.response(200, "List of places retrieved successfully")
     def get(self):
-        return [place.to_dict() for place in facade.get_all_places()], 200
+        return [
+            place.to_dict() for place in facade.get_all_places()
+        ], 200
 
 
 @api.route("/<place_id>")
@@ -98,7 +133,7 @@ class PlaceResource(Resource):
 
         place_dict = place.to_dict()
 
-        if place.owner:
+        if hasattr(place, "owner") and place.owner:
             owner = place.owner
             place_dict["owner"] = {
                 "first_name": owner.first_name,
@@ -107,10 +142,13 @@ class PlaceResource(Resource):
                 "id": owner.id,
             }
 
-        place_dict["amenities"] = [amenity.to_dict() for amenity in place.amenities]
+        if hasattr(place, "amenities") and place.amenities:
+            place_dict["amenities"] = [
+                amenity.to_dict() for amenity in place.amenities
+            ]
         return place_dict, 200
 
-    @api.expect(place_model)
+    @api.expect(place_update_model)
     @api.response(200, "Place updated successfully")
     @api.response(404, "Place not found")
     @api.response(400, "Invalid input data")
@@ -126,11 +164,19 @@ class PlaceResource(Resource):
         if not place:
             return {"error": "Place not found"}, 404
 
-        if current_user_id != place.owner.id and not is_admin:
+        owner_id = (
+            place.owner.id
+            if hasattr(place, "owner") and place.owner
+            else getattr(place, "owner_id", None)
+        )
+
+        if current_user_id != owner_id and not is_admin:
             return {"error": "Unauthorized action."}, 403
 
         try:
-            updated_place = facade.update_place(place_id, place_data)
+            updated_place = facade.update_place(
+                place_id, place_data
+            )
 
             if not updated_place:
                 return {"error": "Place not found"}, 404
@@ -151,7 +197,13 @@ class PlaceResource(Resource):
         if not place:
             return {"error": "Place not found"}, 404
 
-        if place.owner.id != get_jwt_identity() and not is_admin:
+        owner_id = (
+            place.owner.id
+            if hasattr(place, "owner") and place.owner
+            else getattr(place, "owner_id", None)
+        )
+
+        if owner_id != get_jwt_identity() and not is_admin:
             return {"error": "Unauthorized action."}, 403
 
         success = facade.delete_place(place_id)
@@ -163,7 +215,10 @@ class PlaceResource(Resource):
 
 @api.route("/<place_id>/reviews")
 class PlaceReviewList(Resource):
-    @api.response(200, "List of reviews for the place retrieved successfully")
+    @api.response(
+        200,
+        "List of reviews for the place retrieved successfully",
+    )
     @api.response(404, "Place not found")
     def get(self, place_id):
         """Get all reviews for a specific place"""
@@ -172,13 +227,18 @@ class PlaceReviewList(Resource):
             return {"error": "Place not found"}, 404
 
         reviews = facade.get_reviews_by_place(place_id)
-        return [
-            {
-                "id": rev.id,
-                "text": rev.text,
-                "rating": rev.rating.value
+        result = []
+        for rev in reviews:
+            rating_val = (
+                rev.rating.value
                 if hasattr(rev.rating, "value")
-                else rev.rating,
-            }
-            for rev in reviews
-        ], 200
+                else rev.rating
+            )
+            result.append(
+                {
+                    "id": rev.id,
+                    "text": rev.text,
+                    "rating": rating_val,
+                }
+            )
+        return result, 200

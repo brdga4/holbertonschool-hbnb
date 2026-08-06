@@ -1,5 +1,5 @@
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services import facade
 from app.utils.admin_required import admin_required
 
@@ -11,10 +11,18 @@ user_model = api.model(
         "first_name": fields.String(
             required=True, description="First name of the user"
         ),
-        "last_name": fields.String(required=True, description="Last name of the user"),
-        "email": fields.String(required=True, description="Email of the user"),
-        "password": fields.String(required=True, description="Password of the user"),
-        "is_admin": fields.Boolean(required=False, description="Admin or not"),
+        "last_name": fields.String(
+            required=True, description="Last name of the user"
+        ),
+        "email": fields.String(
+            required=True, description="Email of the user"
+        ),
+        "password": fields.String(
+            required=True, description="Password of the user"
+        ),
+        "is_admin": fields.Boolean(
+            required=False, description="Admin or not"
+        ),
     },
 )
 
@@ -24,9 +32,15 @@ user_update_model = api.model(
         "first_name": fields.String(
             required=False, description="First name of the user"
         ),
-        "last_name": fields.String(required=False, description="Last name of the user"),
-        "email": fields.String(required=False, description="Email of the user"),
-        "password": fields.String(required=False, description="Password of the user"),
+        "last_name": fields.String(
+            required=False, description="Last name of the user"
+        ),
+        "email": fields.String(
+            required=False, description="Email of the user"
+        ),
+        "password": fields.String(
+            required=False, description="Password of the user"
+        ),
     },
 )
 
@@ -35,7 +49,9 @@ user_update_model = api.model(
 class UserList(Resource):
     @api.expect(user_model, validate=True)
     @api.response(201, "User successfully created")
-    @api.response(400, "Email already registered or invalid input data")
+    @api.response(
+        400, "Email already registered or invalid input data"
+    )
     @admin_required()
     def post(self):
         """Register a new user"""
@@ -92,7 +108,10 @@ class UserResource(Resource):
     @api.expect(user_update_model, validate=True)
     @api.response(200, "User updated successfully")
     @api.response(404, "User not found")
-    @api.response(400, "Invalid input data or attempted to modify protected fields")
+    @api.response(
+        400,
+        "Invalid input data or attempted to modify protected fields",
+    )
     @api.response(403, "Unauthorized action.")
     @jwt_required()
     def put(self, user_id):
@@ -103,8 +122,12 @@ class UserResource(Resource):
 
         if user_id != current_user_id and not is_admin:
             return {"error": "Unauthorized action."}, 403
-        if ("email" in user_data or "password" in user_data) and not is_admin:
-            return {"error": "You cannot modify email or password."}, 400
+        if (
+            "email" in user_data or "password" in user_data
+        ) and not is_admin:
+            return {
+                "error": "You cannot modify email or password."
+            }, 400
 
         try:
             updated_user = facade.update_user(user_id, user_data)
