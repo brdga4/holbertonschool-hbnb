@@ -1,3 +1,6 @@
+## Database Schema Diagram
+
+```mermaid
 erDiagram
     USERS {
         string id PK
@@ -40,4 +43,4 @@ erDiagram
     USERS ||--o{ REVIEWS : "writes"
     PLACES ||--o{ REVIEWS : "receives"
     PLACES ||--o{ PLACE_AMENITY : "has"
-    AMENITIES ||--o{ PLACE_AMENITY : "belongs to"  
+    AMENITIES ||--o{ PLACE_AMENITY : "belongs to"
