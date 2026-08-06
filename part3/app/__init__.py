@@ -9,7 +9,7 @@ bcrypt = Bcrypt()
 jwt = JWTManager()
 
 
-def create_app(config_name="default"):
+def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
@@ -17,20 +17,8 @@ def create_app(config_name="default"):
     bcrypt.init_app(app)
     jwt.init_app(app)
 
+    # Register Blueprints
     from app.api.v1.auth import auth_bp
-
-    app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
-
-    from app.api.v1 import api_v1
-
-    app.register_blueprint(api_v1, url_prefix="/api/v1")
-
-    with app.app_context():
-        from app.models.user import User
-        from app.models.place import Place
-        from app.models.review import Review
-        from app.models.amenity import Amenity
-
-        db.create_all()
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
 
     return app
