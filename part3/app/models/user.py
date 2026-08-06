@@ -13,6 +13,13 @@ class User(BaseModel):
     password_hash = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
+    places = db.relationship(
+        "Place", backref="owner", lazy=True, cascade="all, delete-orphan"
+    )
+    reviews = db.relationship(
+        "Review", backref="author", lazy=True, cascade="all, delete-orphan"
+    )
+
     def __init__(
         self, first_name, last_name, email, password, is_admin=False, **kwargs
     ):
@@ -70,6 +77,8 @@ class User(BaseModel):
             "last_name": self.last_name,
             "email": self.email,
             "is_admin": self.is_admin,
+            "places": [place.id for place in self.places] if self.places else [],
+            "reviews": [review.id for review in self.reviews] if self.reviews else [],
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

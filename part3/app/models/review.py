@@ -13,10 +13,24 @@ class Review(BaseModel):
         nullable=False,
     )
 
-    def __init__(self, text: str, rating: int, **kwargs):
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    place_id = db.Column(db.String(36), db.ForeignKey("places.id"), nullable=False)
+
+    def __init__(
+        self,
+        text: str,
+        rating: int,
+        user_id: str = None,
+        place_id: str = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.text = text
         self.rating = rating
+        if user_id:
+            self.user_id = user_id
+        if place_id:
+            self.place_id = place_id
 
     @validates("text")
     def validate_text(self, key, text):
@@ -39,6 +53,8 @@ class Review(BaseModel):
             "id": self.id,
             "text": self.text,
             "rating": self.rating,
+            "user_id": self.user_id,
+            "place_id": self.place_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
